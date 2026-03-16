@@ -102,12 +102,14 @@
     const mioCodice = sessionStorage.getItem("codiceUser");
 
 // LISTA CHIAVI ADMIN (Deve essere identica a quella nello Script per coerenza)
-const chiaviAdmin = ["120986-D", "085439-D", "932967-D", "371364"];
+const adminStatus = sessionStorage.getItem("isAdmin");
 
-// Se il mio codice è nella lista, mostro il pulsante arancione
-if (chiaviAdmin.includes(mioCodice)) {
-    document.getElementById("btn-admin-only").style.display = "block";
-}
+    // Controlliamo se è true
+    if (adminStatus === "true") {
+        document.getElementById("btn-admin-only").style.display = "block";
+    }
+
+    
 
     function logout() {
         sessionStorage.clear();
