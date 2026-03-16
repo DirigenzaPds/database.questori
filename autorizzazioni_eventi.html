@@ -155,13 +155,13 @@
                     </div>
                     <div class="form-group">
                         <label>NOME E COGNOME</label>
-                        <input type="text" id="in-nome" class="required" placeholder="Mario Rossi" oninput="capitalizeName(this); updatePreview()">
+                        <input type="text" id="in-nome" class="required" placeholder="Mario Rossi" oninput="onlyText(this); capitalizeName(this); updatePreview()">
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
                         <label>LUOGO DI NASCITA</label>
-                        <input type="text" id="in-nato" class="required" placeholder="Roma" oninput="capitalizeFirst(this); updatePreview()">
+                        <input type="text" id="in-nato" class="required" placeholder="Roma" oninput="onlyText(this); capitalizeFirst(this); updatePreview()">
                     </div>
                     <div class="form-group">
                         <label>DATA DI NASCITA</label>
@@ -170,7 +170,7 @@
                 </div>
                 <div class="form-group">
                     <label>QUALIFICA (RUOLO)</label>
-                    <input type="text" id="in-qualifica" class="required" placeholder="Es: Rappresentante Legale" oninput="updatePreview()">
+                    <input type="text" id="in-qualifica" class="required" placeholder="Es: Rappresentante Legale" oninput="onlyText(this); updatePreview()">
                 </div>
             </div>
 
@@ -226,7 +226,7 @@
             <div class="doc-info">
                 Prot. n: <span id="v-prot-auto" class="filled">01/26</span><br>
                 PRATICA: <span id="v-prot" class="placeholder">-------</span><br>
-                Data: <span id="v-today">--/--/----</span>
+                Data: <span id="v-today" style="font-weight: bold;">--/--/----</span>
             </div>
 
             <div class="doc-subject">
@@ -284,6 +284,19 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
             const nomeUtente = sessionStorage.getItem("nomeUtente") || "OPERATORE_NON_IDENTIFICATO";
             document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
             document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
+            
+            // Tentativo di fetch per prendere l'ultimo protocollo salvato per aggiornare l'UI
+            fetch(GOOGLE_SCRIPT_URL + "?action=getProt")
+                .then(response => response.text())
+                .then(data => {
+                    if(data && data.includes('/26')) {
+                        let num = parseInt(data.split('/')[0]);
+                        let nextNum = num + 1;
+                        let nextProt = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
+                        document.getElementById("v-prot-auto").innerText = nextProt;
+                    }
+                }).catch(e => console.log("Errore recupero protocollo", e));
+
             updatePreview();
         };
 
@@ -292,8 +305,25 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
             document.getElementById("container-campi").className = val !== "" ? "" : "disabled-section";
         }
 
+        // Funzione per forzare solo testo e apostrofi
+        function onlyText(el) {
+            el.value = el.value.replace(/[^a-zA-ZàèéìíòóùúÀÈÉÌÍÒÓÙÚ\s']/g, '');
+        }
+
         function formatDate(el) {
             let v = el.value.replace(/\D/g, '').slice(0, 8);
+            
+            let gg = v.slice(0, 2);
+            let mm = v.slice(2, 4);
+            let aaaa = v.slice(4, 8);
+
+            // Validazione per non superare i limiti (gg 31, mm 12, aaaa 2026)
+            if (gg.length === 2 && parseInt(gg) > 31) gg = "31";
+            if (mm.length === 2 && parseInt(mm) > 12) mm = "12";
+            if (aaaa.length === 4 && parseInt(aaaa) > 2026) aaaa = "2026";
+
+            v = gg + mm + aaaa;
+
             if (v.length >= 5) v = v.replace(/(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
             else if (v.length >= 3) v = v.replace(/(\d{2})(\d{0,2})/, "$1/$2");
             el.value = v;
@@ -357,7 +387,7 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
                 "Questore": "Dott. Marco Ferri", 
                 "Questore Vicario": "Dott. Alessandro B." 
             };
-            document.getElementById("v-q-titolo").innerText = "[[[" + questore.toUpperCase() + "]]]";
+            document.getElementById("v-q-titolo").innerText = "" + questore.toUpperCase() + "";
             document.getElementById("v-q-nome").innerText = firme[questore];
         }
 
@@ -381,8 +411,11 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
             bar.style.width = "0%";
             setTimeout(() => { bar.style.width = "100%"; }, 100);
 
+            // Aggiunto il protocollo (Col A) e la pratica (Col C) per l'invio
             const payload = {
+                protocollo: document.getElementById("v-prot-auto").innerText,
                 operatore: document.getElementById("in-operatore").value,
+                pratica: document.getElementById("in-prot").value,
                 titolo: document.getElementById("in-prot").value,
                 data: document.getElementById("in-dataev").value
             };
@@ -416,6 +449,12 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
                 document.getElementById("p-bar").style.width = "0%";
                 document.getElementById("btn-final-print").style.display = "none";
                 document.getElementById("msg-status").innerText = "Elaborazione dati...";
+                
+                // Opzionale: incremento visivo immediato del protocollo per la prossima pratica
+                let currentProt = document.getElementById("v-prot-auto").innerText;
+                let num = parseInt(currentProt.split('/')[0]);
+                let nextNum = num + 1;
+                document.getElementById("v-prot-auto").innerText = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
             });
         }
     </script>
