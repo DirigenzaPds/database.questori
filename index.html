@@ -29,56 +29,31 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwPuKH18WVI2gAaSbdJFTKjHcQL1XjXkmj2aNMbZSe-9_i1EovbcultS_sADEN14ks/exec";
 
 async function verificaCodice() {
-    const codiceInput = document.getElementById("codice");
-    const codice = codiceInput.value.trim();
+    const codice = document.getElementById("codice").value.trim();
     const statusMsg = document.getElementById("status-msg");
     const btn = document.getElementById("btn-login");
 
-    if (!codice) {
-        statusMsg.style.color = "#e74c3c";
-        statusMsg.textContent = "⚠ Inserisci un codice";
-        return;
-    }
-
-    statusMsg.style.color = "#666";
-    statusMsg.textContent = "Verifica validità in corso...";
+    if (!codice) return;
     btn.disabled = true;
+    statusMsg.textContent = "Verifica...";
 
     try {
-        // Chiamata all'API con cache busting
-        const finalUrl = `${API_URL}?action=login&codice=${encodeURIComponent(codice)}&t=${new Date().getTime()}`;
-        
-        const response = await fetch(finalUrl);
-        const data = await response.json();
+        const r = await fetch(`${API_URL}?action=login&codice=${encodeURIComponent(codice)}`);
+        const data = await r.json();
 
-        // Controllo se l'utente esiste ed è attivo
         if (data.trovato && (data.stato === true || data.stato === "true")) {
-            
-            // SALVATAGGIO SESSIONE
             sessionStorage.setItem("accessoAutorizzato", "true");
-            sessionStorage.setItem("nomeUtente", data.nome || "Utente");
+            sessionStorage.setItem("nomeUtente", data.nome);
             sessionStorage.setItem("codiceUser", codice);
-            sessionStorage.setItem("dataAccesso", new Date().toLocaleString('it-IT'));
+            sessionStorage.setItem("isAdmin", data.isAdmin); // Salva TRUE o FALSE
             
-            // SALVATAGGIO STATO ADMIN (Ricevuto dallo Script)
-            sessionStorage.setItem("isAdmin", data.isAdmin);
-            
-            statusMsg.style.color = "#27ae60";
-            statusMsg.textContent = "✅ Accesso eseguito! Attendere...";
-
-            setTimeout(() => {
-                window.location.href = "./databasequestura.html";
-            }, 500);
-            
+            window.location.href = "./databasequestura.html";
         } else {
-            statusMsg.style.color = "#e74c3c";
-            statusMsg.textContent = "❌ Codice errato o non attivo";
+            alert("Codice errato o non attivo");
             btn.disabled = false;
         }
     } catch (e) {
-        console.error("Errore Login:", e);
-        statusMsg.style.color = "#e74c3c";
-        statusMsg.textContent = "❌ Errore API: Controlla Deployment Google";
+        alert("ERRORE API: Controlla di aver messo CHIUNQUE nel deployment!");
         btn.disabled = false;
     }
 }
