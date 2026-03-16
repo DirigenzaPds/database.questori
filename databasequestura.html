@@ -84,7 +84,7 @@
     <div class="button-area" style="display: flex; gap: 20px;">
         <button class="nav-button" onclick="window.location.href='autorizzazioni_eventi.html'">
             <span class="btn-text">AUTORIZZAZIONI EVENTI</span>
-            <span class="btn-sub">Modulo per compilare le autorizzazioni degli eventi</span>
+            <span class="btn-sub">[pagina successiva]</span>
         </button>
 
         <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
@@ -99,7 +99,7 @@
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
     // Punto 1: Mostra il pulsante solo se il codice è quello admin
-    if (sessionStorage.getItem("codiceUser") === "120986-D";) {
+    if (sessionStorage.getItem("codiceUser") === "120986-D") {
         document.getElementById("btn-admin-only").style.display = "block";
     }
 
