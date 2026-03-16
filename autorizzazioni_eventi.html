@@ -453,7 +453,7 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
                 
                 // Opzionale: incremento visivo immediato del protocollo per la prossima pratica
                 let currentProt = document.getElementById("v-prot-auto").innerText;
-                let num = parseInt(currentProt.split('/')[0]);
+                let num = parseInt(currentProt.split('/')[00]);
                 let nextNum = num + 1;
                 document.getElementById("v-prot-auto").innerText = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
             });
