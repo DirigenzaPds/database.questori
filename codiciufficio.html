@@ -78,7 +78,7 @@
         <input type="text" id="add-matricola" class="input-edit" readonly placeholder="Matricola">
         <div class="btn-group">
             <button id="add-opt-attivo" class="btn-attivo" onclick="setStatoAdd('✅ Validità')">ATTIVO</button>
-            <button id="add-opt-disattivo" class="btn-disattivo" onclick="setStatoAdd('❌ Non Valido')">DISATTIVO</button>
+            <button id="add-optisattivo" class="btnisattivo" onclick="setStatoAdd('❌ Non Valido')">DISATTIVO</button>
         </div>
         <button class="btn-save-final" style="background: #27ae60;" onclick="salvaNuovo()">SALVA NEL DATABASE</button>
         <p onclick="chiudiModals()" style="margin-top:15px; cursor:pointer; font-size:13px; color:#7f8c8d;">Annulla</p>
@@ -92,7 +92,7 @@
         <input type="text" id="edit-codice" class="input-edit">
         <div class="btn-group">
             <button id="opt-attivo" class="btn-attivo" onclick="setStato('✅ Validità')">ATTIVO</button>
-            <button id="opt-disattivo" class="btn-disattivo" onclick="setStato('❌ Non Valido')">DISATTIVO</button>
+            <button id="optisattivo" class="btnisattivo" onclick="setStato('❌ Non Valido')">DISATTIVO</button>
         </div>
         <button class="btn-save-final" id="btnSalva">CONFERMA E SALVA</button>
         <p onclick="chiudiModals()" style="margin-top:15px; cursor:pointer; font-size:13px; color:#7f8c8d;">Annulla</p>
@@ -103,7 +103,7 @@
     <div class="modal-content">
         <h3 style="color:#c0392b;">Rimuovere Operatore?</h3>
         <div class="progress-container" id="p-container"><div class="progress-bar" id="p-bar"></div></div>
-        <button id="btn-delete-final" class="btn-delete-final" onclick="eseguiEliminazione()">ELIMINA ORA</button>
+        <button id="btnelete-final" class="btnelete-final" onclick="eseguiEliminazione()">ELIMINA ORA</button>
         <p id="wait-msg" style="font-weight:bold; margin-top:10px;">Attendi 3 secondi...</p>
         <p onclick="chiudiModals()" style="margin-top:15px; cursor:pointer; font-size:13px; color:#7f8c8d;">Annulla</p>
     </div>
