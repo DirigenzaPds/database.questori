@@ -61,7 +61,7 @@
     <script>
         // BLOCCO DI SICUREZZA IMMEDIATO
         if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
-            window.location.replace("login.html");
+            window.location.replace("index.html");
         }
     </script>
 
@@ -105,7 +105,7 @@
 
     function logout() {
         sessionStorage.clear();
-        window.location.replace("login.html");
+        window.location.replace("index.html");
     }
 </script>
 </body>
