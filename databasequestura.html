@@ -87,7 +87,7 @@
             <span class="btn-sub">Modulo per compilare le autorizzazioni degli eventi</span>
         </button>
 
-        <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
+        <button id="btn--only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
             <span class="btn-text" style="color: #e67e22;">REGISTRO CODICI</span>
             <span class="btn-sub">[Amministrazione]</span>
         </button>
@@ -99,9 +99,9 @@
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
     // Punto 1: Mostra il pulsante solo se il codice è quello admin
-    if (sessionStorage.getItem("codiceUser") === "120986-D") {
-        document.getElementById("btn-admin-only").style.display = "block";
-    }
+    if (sessionStorage.getItem("isAdmin") === "true") {
+    document.getElementById("btn-admin-only").style.display = "block";
+}
 
     function logout() {
         sessionStorage.clear();
