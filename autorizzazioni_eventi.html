@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Questura - Autorizzazioni Eventi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { 
+            --ps-dark: #1a252f; 
+            --ps-accent: #3498db; 
+            --bg-ui: #f4f7f9;
+            --text-main: #2c3e50;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; display: flex; height: 100vh; background: var(--bg-ui); overflow: hidden; color: var(--text-main); }
+
+        /* --- PANNELLO INPUT (SINISTRA) --- */
+        .input-panel { 
+            width: 40%; height: 100%; padding: 30px; overflow-y: auto; 
+            background: white; box-shadow: 5px 0 15px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .header-ui { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 3px solid var(--ps-dark); padding-bottom: 15px; }
+        .header-ui h2 { margin: 0; color: var(--ps-dark); font-size: 20px; letter-spacing: 1px; }
+        
+        .btn-back { background: var(--ps-dark); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-weight: 600; font-size: 12px; }
+        .btn-back:hover { background: var(--ps-accent); }
+
+        .form-section { background: #ffffff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e1e8ed; border-left: 5px solid var(--ps-accent); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .form-section h3 { margin: 0 0 15px 0; font-size: 12px; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
+
+        .disabled-section { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 6px; color: var(--ps-dark); }
+        
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; 
+            font-size: 14px; transition: all 0.2s ease; background: #fcfcfc;
+        }
+        input:focus { border-color: var(--ps-accent); outline: none; background: white; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+        input.error { border: 2px solid var(--danger) !important; background-color: #fff5f5; }
+
+        .row { display: flex; gap: 15px; }
+        .row > div { flex: 1; }
+
+        #error-msg { color: var(--danger); font-size: 13px; font-weight: bold; margin-top: 15px; text-align: center; display: none; padding: 10px; background: #fee; border-radius: 6px; border: 1px solid var(--danger); }
+
+        /* --- PANNELLO ANTEPRIMA (DESTRA) --- */
+        .preview-panel { 
+            width: 60%; height: 100%; padding: 20px; overflow-y: auto; 
+            background: #34495e; display: flex; justify-content: center; align-items: flex-start;
+        }
+        .document-page { 
+            width: 210mm; height: 296.5mm; 
+            background: white; padding: 20mm 20mm; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); color: black; position: relative;
+            overflow: hidden; box-sizing: border-box;
+        }
+
+        /* --- STILI DOCUMENTO --- */
+        .doc-header { text-align: center; margin-bottom: 25px; }
+        .logo-box {
+            background-image: url('https://cdn.discordapp.com/attachments/1461731411537956905/1480670186024472717/Emblem_of_Italy.png?ex=69b12dd1&is=69afdc51&hm=c42dfd5356540b932986f2d664071ac3dc257c459b5e7d7e35a9ec9fdd945b3a&');
+            background-size: contain; background-repeat: no-repeat; background-position: center; height: 90px; margin-bottom: 10px; width: 100%;
+        }
+        .doc-header h1 { margin: 0; font-family: "Times New Roman", serif; font-size: 20pt; font-weight: bold; text-transform: uppercase; }
+        .doc-header p { margin: 0; font-family: "Times New Roman", serif; font-size: 12pt; }
+
+        .doc-info { text-align: right; font-family: "Times New Roman", serif; font-size: 11pt; margin: 30px 0; line-height: 1.4; }
+        .doc-subject { border: 1.5px solid black; padding: 12px; text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin-bottom: 30px; text-transform: uppercase; }
+        .doc-body-main { font-family: "Calibri", sans-serif; font-size: 12.5pt; text-align: justify; line-height: 1.5; margin-bottom: 20px; }
+        .doc-autorizza { font-family: "Calibri", sans-serif; font-size: 16pt; font-weight: bold; text-align: center; margin: 25px 0; text-decoration: underline; }
+        .doc-list { font-family: "Calibri", sans-serif; font-size: 11pt; margin-bottom: 20px; padding-left: 25px; }
+        .doc-list div { margin-bottom: 6px; }
+        .doc-body-footer { font-family: "Calibri", sans-serif; font-size: 11pt; text-align: justify; margin-top: 20px; }
+
+        .doc-signature-area { float: right; width: 280px; text-align: center; margin-top: 30px; }
+        .signature-box {
+            background-image: url('https://cdn.discordapp.com/attachments/1461731411537956905/1480672555982524467/image.png?ex=69b08746&is=69af35c6&hm=6118550e4ad5d75342d718816f412d333c5d964cd15a6baa2c8a0f6211285347&');
+            background-size: contain; background-repeat: no-repeat; background-position: center; padding: 25px 0; min-height: 80px;
+        }
+        .questore-titolo, .questore-nome { font-weight: bold; display: block; font-size: 12pt; }
+
+        .placeholder { color: #e74c3c; font-weight: bold; border-bottom: 1px dashed #e74c3c; background: #fff0f0; }
+        .filled { color: black; font-weight: bold; }
+
+        /* MODALE STAMPA */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); }
+        .modal-content { background: white; width: 420px; margin: 12% auto; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .progress-box { width: 100%; background: #f0f0f0; height: 14px; border-radius: 10px; margin: 25px 0; overflow: hidden; border: 1px solid #ddd; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 10px; transition: width 3s linear; }
+        .btn-print-final { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; display: none; width: 100%; font-size: 16px; transition: 0.3s; }
+        .btn-print-final:hover { background: #219150; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <script>
+        if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <div class="input-panel">
+        <div class="header-ui">
+            <h2>GESTIONE EVENTI</h2>
+            <button class="btn-back" onclick="window.location.href='databasequestura.html'">CHIUDI</button>
+        </div>
+
+        <div class="form-section">
+            <h3>1. Identificativo Pratica</h3>
+            <div class="form-group">
+                <label>NOME EVENTO (TITOLO)</label>
+                <input type="text" id="in-prot" placeholder="Es: Manifestazione Sindacale" oninput="checkTitolo(); updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>OPERATORE ASSEGNATO</label>
+                <input type="text" id="in-operatore" readonly style="background: #e9ecef; color: #495057; font-weight: bold;">
+            </div>
+        </div>
+
+        <div id="container-campi" class="disabled-section">
+            <div class="form-section">
+                <h3>2. Cronologia</h3>
+                <div class="form-group">
+                    <label>DATA RICEZIONE RICHIESTA</label>
+                    <input type="text" id="in-dataric" class="required" placeholder="gg/mm/aaaa" oninput="formatDate(this); updatePreview()">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>3. Soggetto Richiedente</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>SESSO</label>
+                        <select id="in-sesso" onchange="updatePreview()">
+                            <option value="M">Maschio (M)</option>
+                            <option value="F">Femmina (F)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>NOME E COGNOME</label>
+                        <input type="text" id="in-nome" class="required" placeholder="Mario Rossi" oninput="capitalizeName(this); updatePreview()">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>LUOGO DI NASCITA</label>
+                        <input type="text" id="in-nato" class="required" placeholder="Roma" oninput="capitalizeFirst(this); updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>DATA DI NASCITA</label>
+                        <input type="text" id="in-datanas" class="required" placeholder="gg/mm/aaaa" oninput="formatDate(this); updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>QUALIFICA (RUOLO)</label>
+                    <input type="text" id="in-qualifica" class="required" placeholder="Es: Rappresentante Legale" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>4. Dettagli Logistici</h3>
+                <div class="form-group">
+                    <label>DATA SVOLGIMENTO</label>
+                    <input type="text" id="in-dataev" class="required" placeholder="gg/mm/aaaa" oninput="formatDate(this); updatePreview()">
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>ORA INIZIO</label>
+                        <input type="text" id="in-oraI" class="required" placeholder="hh:mm" oninput="formatTime(this); updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>ORA FINE</label>
+                        <input type="text" id="in-oraF" class="required" placeholder="hh:mm" oninput="formatTime(this); updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>LOCALITÀ / INDIRIZZO</label>
+                    <input type="text" id="in-luogo" class="required" placeholder="Es: Piazza del Popolo" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>5. Firmatario</h3>
+                <div class="form-group">
+                    <label>AUTORITÀ DISPONENTE</label>
+                    <select id="in-questore" onchange="updatePreview()">
+                        <option value="Dirigente Generale di P.S.">Dirigente Generale di P.S.</option>
+                        <option value="Dirigente Superiore">Dirigente Superiore</option>
+                        <option value="Primo Dirigente">Primo Dirigente</option>
+                        <option value="Questore">Questore</option>
+                        <option value="Questore Vicario">Questore Vicario</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="startPrintProcess()" style="width:100%; padding:18px; background:var(--ps-dark); color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:15px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">GENERA E REGISTRA</button>
+            <div id="error-msg">ATTENZIONE: Compilare tutti i campi evidenziati in rosso.</div>
+        </div>
+    </div>
+
+    <div class="preview-panel">
+        <div class="document-page" id="documento">
+            <div class="doc-header">
+                <div class="logo-box"></div>
+                <h1>QUESTURA DI ROMA</h1>
+                <p>UFFICIO DI PUBBLICA SICUREZZA</p>
+            </div>
+
+            <div class="doc-info">
+                Prot. n: <span id="v-prot-auto" class="filled">01/26</span><br>
+                PRATICA: <span id="v-prot" class="placeholder">-------</span><br>
+                Data: <span id="v-today">--/--/----</span>
+            </div>
+
+            <div class="doc-subject">
+                OGGETTO: Autorizzazione ai sensi dell'art. 18 T.U.L.P.S. per lo<br>
+                svolgimento di manifestazione pubblica.
+            </div>
+
+            <div class="doc-body-main">
+                Il Questore della Provincia di Roma, vista la richiesta prodotta in data <span id="v-dataric" class="placeholder">[dataric]</span> da <span id="v-sig">Sig.</span> <span id="v-nome" class="placeholder">[nome]</span>, 
+<span id="v-natosesso">nato</span> il <span id="v-datanas" class="placeholder">[datanas]</span> a <span id="v-nato" class="placeholder">[nato]</span>,
+                agente in veste di <span id="v-qualifica" class="placeholder">[qualifica]</span>, verificata la regolarità della comunicazione ai sensi <b>dell’art. 18 del T.U.L.P.S.</b>; 
+                preso atto che l'evento si terrà il <span id="v-dataev" class="placeholder">[dataev]</span> dalle ore <span id="v-oraI" class="placeholder">[oraI]</span> alle ore <span id="v-oraF" class="placeholder">[oraF]</span> presso <span id="v-luogo" class="placeholder">[luogo]</span>;
+            </div>
+
+            <div class="doc-autorizza">AUTORIZZA</div>
+
+            <div class="doc-list">
+                <div><b>1.</b> L'osservanza rigorosa delle norme vigenti in materia di Ordine e Sicurezza Pubblica;</div>
+                <div><b>2.</b> Il divieto assoluto di intralcio alla circolazione stradale non preventivamente concordato;</div>
+                <div><b>3.</b> Il rispetto delle prescrizioni fonometriche e delle ordinanze sindacali;</div>
+                <div><b>4.</b> L'obbligo di garantire l'accesso ai mezzi di soccorso in ogni fase dell'evento;</div>
+                <div><b>5.</b> Il ripristino immediato dello stato dei luoghi al termine delle attività.</div>
+            </div>
+
+            <div class="doc-body-footer">
+                Il presente provvedimento è revocabile in qualsiasi momento per motivi di ordine pubblico. Il richiedente è responsabile civilmente e penalmente per ogni danno derivante dall'attività autorizzata.
+            </div>
+
+            <div class="doc-signature-area">
+                <div style="font-size:11pt; margin-bottom:10px; font-family: serif italic;">Per il Questore,</div>
+                <div class="signature-box">
+                    <span class="questore-titolo" id="v-q-titolo">[[[QUESTORE]]]</span>
+                    <span class="questore-nome" id="v-q-nome">[nomequest]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalStampa" class="modal">
+        <div class="modal-content">
+            <h2 style="margin:0; color:var(--ps-dark);">REGISTRAZIONE</h2>
+            <p style="color:#666; font-size:14px;">Archiviazione nel registro EVENTI e generazione documento ufficiale...</p>
+            <div class="progress-box"><div id="p-bar" class="progress-bar"></div></div>
+            <p id="msg-status" style="font-weight:bold; color:var(--ps-accent);">Elaborazione dati...</p>
+            <button id="btn-final-print" class="btn-print-final" onclick="generatePDFFile()">SCARICA PDF UFFICIALE</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvBH6nzd0-SGqoDVIaQGgKhvDp94pIjdmUVpa76COBDya0JxJTh8-8VVd0SJ1_m1s/exec";
+
+        window.onload = () => {
+            const nomeUtente = sessionStorage.getItem("nomeUtente") || "OPERATORE_NON_IDENTIFICATO";
+            document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
+            document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
+            updatePreview();
+        };
+
+        function checkTitolo() {
+            const val = document.getElementById("in-prot").value.trim();
+            document.getElementById("container-campi").className = val !== "" ? "" : "disabled-section";
+        }
+
+        function formatDate(el) {
+            let v = el.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length >= 5) v = v.replace(/(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
+            else if (v.length >= 3) v = v.replace(/(\d{2})(\d{0,2})/, "$1/$2");
+            el.value = v;
+        }
+
+        function formatTime(el) {
+            let v = el.value.replace(/\D/g, '');
+            if (v.length > 4) v = v.slice(0, 4);
+
+            let hh = v.slice(0, 2);
+            let mm = v.slice(2, 4);
+
+            // Validazione Ore (max 23)
+            if (hh.length === 2) {
+                if (parseInt(hh) > 23) hh = "23";
+            } else if (hh.length === 1 && parseInt(hh) > 2) {
+                // Se l'utente digita es. 3, trasforma in 03 per forzare il formato
+                hh = "0" + hh;
+            }
+
+            // Validazione Minuti (max 59)
+            if (mm.length === 2) {
+                if (parseInt(mm) > 59) mm = "59";
+            } else if (mm.length === 1 && parseInt(mm) > 5) {
+                mm = "0" + mm;
+            }
+
+            // Composizione finale con i due punti sempre presenti se ci sono ore
+            let finalValue = hh;
+            if (v.length >= 1) finalValue += ":";
+            if (mm.length > 0) finalValue += mm;
+
+            el.value = finalValue;
+        }
+
+        function capitalizeName(el) { el.value = el.value.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' '); }
+        function capitalizeFirst(el) { if (el.value.length > 0) el.value = el.value.charAt(0).toUpperCase() + el.value.slice(1); }
+
+        function updatePreview() {
+            const fields = ["prot", "dataric", "nome", "datanas", "qualifica", "dataev", "oraI", "oraF", "luogo"];
+            fields.forEach(id => {
+                const val = document.getElementById("in-" + id).value;
+                const el = document.getElementById("v-" + id);
+                if(val) { el.innerText = val; el.className = "filled"; }
+                else { el.innerText = id === "prot" ? "-------" : "["+id+"]"; el.className = "placeholder"; }
+            });
+
+            const sesso = document.getElementById("in-sesso").value;
+            document.getElementById("v-sig").innerText = sesso === "M" ? "Sig." : "Sig.ra";
+            document.getElementById("v-natosesso").innerText = sesso === "M" ? "nato" : "nata";
+            
+            const nato = document.getElementById("in-nato").value;
+            document.getElementById("v-nato").innerText = nato || "[nato]";
+            document.getElementById("v-nato").className = nato ? "filled" : "placeholder";
+
+            const questore = document.getElementById("in-questore").value;
+            const firme = { 
+                "Dirigente Generale di P.S.": "Dott. Marco Ferri", 
+                "Dirigente Superiore": "Dott. Jolen Iuliano", 
+                "Primo Dirigente": "Dott. Matteo Rossi", 
+                "Questore": "Dott. Marco Ferri", 
+                "Questore Vicario": "Dott. Alessandro B." 
+            };
+            document.getElementById("v-q-titolo").innerText = "[[[" + questore.toUpperCase() + "]]]";
+            document.getElementById("v-q-nome").innerText = firme[questore];
+        }
+
+        function startPrintProcess() {
+            const req = document.querySelectorAll(".required, #in-prot");
+            let err = 0;
+            req.forEach(f => {
+                if(!f.value.trim()){ f.classList.add("error"); err++; }
+                else { f.classList.remove("error"); }
+            });
+
+            if(err > 0) {
+                document.getElementById("error-msg").style.display = "block";
+                return;
+            }
+
+            document.getElementById("error-msg").style.display = "none";
+            document.getElementById("modalStampa").style.display = "block";
+            
+            const bar = document.getElementById("p-bar");
+            bar.style.width = "0%";
+            setTimeout(() => { bar.style.width = "100%"; }, 100);
+
+            const payload = {
+                operatore: document.getElementById("in-operatore").value,
+                titolo: document.getElementById("in-prot").value,
+                data: document.getElementById("in-dataev").value
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+            .catch(e => console.log("Errore invio registro"));
+
+            setTimeout(() => {
+                document.getElementById("msg-status").innerText = "Pratica Registrata con Successo!";
+                document.getElementById("btn-final-print").style.display = "block";
+            }, 3050);
+        }
+
+        function generatePDFFile() {
+            const element = document.getElementById('documento');
+            const titoloEvento = document.getElementById("in-prot").value || "EVENTO";
+            const dataEvento = document.getElementById("in-dataev").value || "DATA";
+            
+            const nomeFilePDF = `AUTORIZZAZIONE ${titoloEvento} | ${dataEvento}.pdf`;
+
+            const opt = {
+                margin: 0,
+                filename: nomeFilePDF,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.getElementById("modalStampa").style.display = "none";
+                document.getElementById("p-bar").style.width = "0%";
+                document.getElementById("btn-final-print").style.display = "none";
+                document.getElementById("msg-status").innerText = "Elaborazione dati...";
+            });
+        }
+    </script>
+</body>
+</html>
