@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Questura</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #ecf0f1; }
+
+        /* Rettangolo Verticale Sinistra */
+        .sidebar {
+            width: 300px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            border-right: 8px solid #34495e;
+        }
+
+        .user-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .user-card h4 { font-size: 12px; text-transform: uppercase; color: #bdc3c7; margin-bottom: 5px; }
+        .user-card p { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .user-card .date { font-size: 13px; font-weight: normal; color: #95a5a6; }
+
+        /* Contenuto Destra */
+        .main-content { flex-grow: 1; padding: 60px; }
+        h1 { color: #2c3e50; margin-bottom: 30px; font-size: 28px; }
+
+        .nav-button {
+            background: white;
+            border: 2px solid #2c3e50;
+            padding: 25px 40px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:hover {
+            background: #2c3e50;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-text { display: block; font-size: 18px; font-weight: bold; }
+        .btn-sub { display: block; font-size: 12px; opacity: 0.8; margin-top: 5px; }
+
+        .logout { margin-top: auto; color: #e74c3c; cursor: pointer; text-decoration: underline; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <script>
+        // BLOCCO DI SICUREZZA IMMEDIATO
+        if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <aside class="sidebar">
+        <div class="user-card">
+            <h4>Operatore</h4>
+            <p id="nome-utente">Caricamento...</p>
+            <div class="date">
+                Accedi il:<br>
+                <span id="data-accesso">--/--/----</span>
+            </div>
+        </div>
+        
+        <div class="logout" onclick="logout()">Scollegati dal sistema</div>
+    </aside>
+
+    <main class="main-content">
+    <h1>HOME</h1>
+    
+    <div class="button-area" style="display: flex; gap: 20px;">
+        <button class="nav-button" onclick="window.location.href='autorizzazioni_eventi.html'">
+            <span class="btn-text">AUTORIZZAZIONI EVENTI</span>
+            <span class="btn-sub">[pagina successiva]</span>
+        </button>
+
+        <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
+            <span class="btn-text" style="color: #e67e22;">REGISTRO CODICI</span>
+            <span class="btn-sub">[Amministrazione]</span>
+        </button>
+    </div>
+</main>
+
+<script>
+    document.getElementById("nome-utente").textContent = sessionStorage.getItem("nomeUtente");
+    document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
+
+    // Punto 1: Mostra il pulsante solo se il codice è quello admin
+    if (sessionStorage.getItem("codiceUser") === "129424-D") {
+        document.getElementById("btn-admin-only").style.display = "block";
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.replace("login.html");
+    }
+</script>
+</body>
+</html>
