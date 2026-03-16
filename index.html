@@ -58,8 +58,6 @@ async function verificaCodice() {
         const data = await response.json();
 
         if (data.trovato && (data.stato === true || data.stato === "true")) {
-            sessionStorage.setItem("isAdmin", data.isAdmin);
-sessionStorage.setItem("codiceUser", codice_inserito_dall_utente); // Assicurati di salvare anche la matricola
             sessionStorage.setItem("accessoAutorizzato", "true");
             sessionStorage.setItem("nomeUtente", data.nome || "Utente");
             sessionStorage.setItem("codiceUser", codice);
