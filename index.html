@@ -25,7 +25,7 @@
 </div>
 
 <script>
-// Assicurati che l'URL termini con /exec
+// ATTENZIONE: Assicurati che questo URL sia quello dell'ULTIMO DEPLOYMENT effettuato
 const API_URL = "https://script.google.com/macros/s/AKfycbxbdhBwy5lljjElYCTGywFXZP-kmE9ysYeb89LS5CJY-wqaYlf9Rit52AozTRBxdhE/exec";
 
 async function verificaCodice() {
@@ -45,28 +45,27 @@ async function verificaCodice() {
     btn.disabled = true;
 
     try {
-        // Aggiungiamo un timestamp per evitare cache del browser (cache busting)
+        // Chiamata all'API con cache busting
         const finalUrl = `${API_URL}?action=login&codice=${encodeURIComponent(codice)}&t=${new Date().getTime()}`;
         
-        const response = await fetch(finalUrl, {
-            method: 'GET',
-            mode: 'cors', // Cruciale per GitHub Pages
-        });
-
-        if (!response.ok) throw new Error("Errore Server");
-
+        const response = await fetch(finalUrl);
         const data = await response.json();
 
+        // Controllo se l'utente esiste ed è attivo
         if (data.trovato && (data.stato === true || data.stato === "true")) {
+            
+            // SALVATAGGIO SESSIONE
             sessionStorage.setItem("accessoAutorizzato", "true");
             sessionStorage.setItem("nomeUtente", data.nome || "Utente");
             sessionStorage.setItem("codiceUser", codice);
             sessionStorage.setItem("dataAccesso", new Date().toLocaleString('it-IT'));
             
+            // SALVATAGGIO STATO ADMIN (Ricevuto dallo Script)
+            sessionStorage.setItem("isAdmin", data.isAdmin); 
+            
             statusMsg.style.color = "#27ae60";
             statusMsg.textContent = "✅ Accesso eseguito! Attendere...";
 
-            // Uso di ./ per garantire che rimanga nella stessa cartella di GitHub Pages
             setTimeout(() => {
                 window.location.href = "./databasequestura.html";
             }, 500);
@@ -79,7 +78,7 @@ async function verificaCodice() {
     } catch (e) {
         console.error("Errore Login:", e);
         statusMsg.style.color = "#e74c3c";
-        statusMsg.textContent = "❌ Errore: Verifica la connessione o l'API";
+        statusMsg.textContent = "❌ Errore API: Controlla Deployment Google";
         btn.disabled = false;
     }
 }
