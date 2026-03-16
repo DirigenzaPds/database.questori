@@ -99,7 +99,13 @@
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
     // Punto 1: Mostra il pulsante solo se il codice è quello admin
-    if (sessionStorage.getItem("isAdmin") === "true") {
+    const mioCodice = sessionStorage.getItem("codiceUser");
+
+// LISTA CHIAVI ADMIN (Deve essere identica a quella nello Script per coerenza)
+const chiaviAdmin = ["120986-D", "085439-D", "932967-D", "371364"];
+
+// Se il mio codice è nella lista, mostro il pulsante arancione
+if (chiaviAdmin.includes(mioCodice)) {
     document.getElementById("btn-admin-only").style.display = "block";
 }
 
