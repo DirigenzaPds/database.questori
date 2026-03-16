@@ -95,21 +95,18 @@
 </main>
 
 <script>
+    // Carica dati utente
     document.getElementById("nome-utente").textContent = sessionStorage.getItem("nomeUtente");
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
-    // Punto 1: Mostra il pulsante solo se il codice è quello admin
-    const mioCodice = sessionStorage.getItem("codiceUser");
+    // CONTROLLO ADMIN CORRETTO
+    const isAdmin = sessionStorage.getItem("isAdmin");
 
-// LISTA CHIAVI ADMIN (Deve essere identica a quella nello Script per coerenza)
-const adminStatus = sessionStorage.getItem("isAdmin");
-
-    // Controlliamo se è true
-    if (adminStatus === "true") {
-        document.getElementById("btn-admin-only").style.display = "block";
+    if (isAdmin === "true" || isAdmin === true) {
+        // Usa l'ID corretto che hai nel pulsante HTML
+        const btnAdmin = document.getElementById("btn--only"); 
+        if(btnAdmin) btnAdmin.style.display = "block";
     }
-
-    
 
     function logout() {
         sessionStorage.clear();
