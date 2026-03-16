@@ -61,7 +61,7 @@
     <script>
         // BLOCCO DI SICUREZZA IMMEDIATO
         if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
-            window.location.replace("index.html");
+            window.location.replace("login.html");
         }
     </script>
 
@@ -84,10 +84,10 @@
     <div class="button-area" style="display: flex; gap: 20px;">
         <button class="nav-button" onclick="window.location.href='autorizzazioni_eventi.html'">
             <span class="btn-text">AUTORIZZAZIONI EVENTI</span>
-            <span class="btn-sub">Modulo per compilare le autorizzazioni degli eventi</span>
+            <span class="btn-sub">[pagina successiva]</span>
         </button>
 
-        <button id="btn--only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
+        <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
             <span class="btn-text" style="color: #e67e22;">REGISTRO CODICI</span>
             <span class="btn-sub">[Amministrazione]</span>
         </button>
@@ -95,22 +95,17 @@
 </main>
 
 <script>
-    // Carica dati utente
     document.getElementById("nome-utente").textContent = sessionStorage.getItem("nomeUtente");
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
-    // CONTROLLO ADMIN CORRETTO
-    const isAdmin = sessionStorage.getItem("isAdmin");
-
-    if (isAdmin === "true" || isAdmin === true) {
-        // Usa l'ID corretto che hai nel pulsante HTML
-        const btnAdmin = document.getElementById("btn--only"); 
-        if(btnAdmin) btnAdmin.style.display = "block";
+    // Punto 1: Mostra il pulsante solo se il codice è quello admin
+    if (sessionStorage.getItem("codiceUser") === "129424-D") {
+        document.getElementById("btn-admin-only").style.display = "block";
     }
 
     function logout() {
         sessionStorage.clear();
-        window.location.replace("index.html");
+        window.location.replace("login.html");
     }
 </script>
 </body>
