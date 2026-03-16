@@ -289,13 +289,13 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
                 .then(data => {
                     // data = l'ultimo protocollo trovato es. 07/26
                     if(data && data.includes('/26')) {
-                        let num = parseInt(data.split('/')[0]);
+                        let num = parseInt(data.split('/')[00]);
                         let nextNum = num + 1;
-                        let nextProt = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
+                        let nextProt = (nextNum < 10 ? "00" + nextNum : nextNum) + "/26";
                         document.getElementById("v-prot-auto").innerText = nextProt;
                     } else {
                         // Se il foglio è vuoto o non risponde parte da 01
-                        document.getElementById("v-prot-auto").innerText = "01/26";
+                        document.getElementById("v-prot-auto").innerText = "001/26";
                     }
                 }).catch(e => console.log("Errore recupero protocollo", e));
 
