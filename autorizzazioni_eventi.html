@@ -64,7 +64,6 @@
         /* --- STILI DOCUMENTO --- */
         .doc-header { text-align: center; margin-bottom: 25px; }
         .logo-box {
-            /* Puntiamo al file caricato nella stessa cartella */
             background-image: url('stemma.png'); 
             background-size: contain; 
             background-repeat: no-repeat; 
@@ -86,7 +85,6 @@
 
         .doc-signature-area { float: right; width: 280px; text-align: center; margin-top: 30px; }
         .signature-box {
-            /* Puntiamo al file caricato nella stessa cartella */
             background-image: url('firma.png'); 
             background-size: contain; 
             background-repeat: no-repeat; 
@@ -285,15 +283,19 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
             document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
             document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
             
-            // Tentativo di fetch per prendere l'ultimo protocollo salvato per aggiornare l'UI
+            // Va a leggere dal file Google
             fetch(GOOGLE_SCRIPT_URL + "?action=getProt")
                 .then(response => response.text())
                 .then(data => {
+                    // data = l'ultimo protocollo trovato es. 07/26
                     if(data && data.includes('/26')) {
                         let num = parseInt(data.split('/')[0]);
                         let nextNum = num + 1;
                         let nextProt = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
                         document.getElementById("v-prot-auto").innerText = nextProt;
+                    } else {
+                        // Se il foglio è vuoto o non risponde parte da 01
+                        document.getElementById("v-prot-auto").innerText = "01/26";
                     }
                 }).catch(e => console.log("Errore recupero protocollo", e));
 
@@ -411,12 +413,11 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
             bar.style.width = "0%";
             setTimeout(() => { bar.style.width = "100%"; }, 100);
 
-            // Aggiunto il protocollo (Col A) e la pratica (Col C) per l'invio
+            // ECCO IL PAYLOAD SISTEMATO
             const payload = {
                 protocollo: document.getElementById("v-prot-auto").innerText,
                 operatore: document.getElementById("in-operatore").value,
-                pratica: document.getElementById("in-prot").value,
-                titolo: document.getElementById("in-prot").value,
+                titolo: document.getElementById("in-prot").value, // Questo andrà nella Colonna C
                 data: document.getElementById("in-dataev").value
             };
 
