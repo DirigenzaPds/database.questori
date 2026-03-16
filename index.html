@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page Progetto</title>
+    <title>Dashboard - Sistema Questura</title>
+    <script>
+        if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
+            window.location.replace("https://dirigenzapds.github.io/database.questori/login.html");
+        }
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,23 +16,39 @@
     <div class="container">
         <aside class="sidebar">
             <div class="welcome-box">
-                <p>Benvenuto, <br><span id="user-name">Mario Rossi</span></p>
+                <p>Benvenuto, <br><strong id="user-name">Caricamento...</strong></p>
                 <hr>
                 <p id="access-date"></p>
+                <button onclick="logout()" style="margin-top:10px; cursor:pointer;">Esci</button>
             </div>
         </aside>
 
         <main class="content">
-            <h1>Dashboard</h1>
+            <h1>Dashboard Operativa</h1>
             <div class="button-grid">
                 <button onclick="window.location.href='autorizzazioni.html'" class="btn-main">
                     AUTORIZZAZIONI EVENTI
-                    <span>[Pagina successiva]</span>
+                    <span>[Vai alla gestione]</span>
                 </button>
             </div>
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Funzione per popolare i dati al caricamento
+        document.addEventListener("DOMContentLoaded", () => {
+            const nome = sessionStorage.getItem("nomeUtente");
+            const data = sessionStorage.getItem("dataAccesso");
+
+            if (nome) document.getElementById("user-name").textContent = nome;
+            if (data) document.getElementById("access-date").textContent = "Accesso: " + data;
+        });
+
+        // Funzione per il logout
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
 </body>
 </html>
