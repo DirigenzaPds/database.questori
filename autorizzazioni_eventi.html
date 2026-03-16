@@ -222,7 +222,7 @@
             </div>
 
             <div class="doc-info">
-                Prot. n: <span id="v-prot-auto" class="filled">01/26</span><br>
+                Prot. n: <span id="v-prot-auto" class="filled">001/26</span><br>
                 PRATICA: <span id="v-prot" class="placeholder">-------</span><br>
                 Data: <span id="v-today" style="font-weight: bold;">--/--/----</span>
             </div>
@@ -455,7 +455,7 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
                 let currentProt = document.getElementById("v-prot-auto").innerText;
                 let num = parseInt(currentProt.split('/')[00]);
                 let nextNum = num + 1;
-                document.getElementById("v-prot-auto").innerText = (nextNum < 10 ? "0" + nextNum : nextNum) + "/26";
+                document.getElementById("v-prot-auto").innerText = (nextNum < 10 ? "00" + nextNum : nextNum) + "/26";
             });
         }
     </script>
