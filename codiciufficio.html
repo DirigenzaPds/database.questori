@@ -110,8 +110,9 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzpGGV5PVTwrC_7mqk0sMPkBmCFjRRvfQd3_LRQe6VEuIw46HlY9eSrfpFHNAgDoQ/exec";
-    const ADMIN_KEY = "120986-D";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzLtlibTJavuN1tp9M1jSNGtK8Hx8vu4cWEPzF5-_sU6xWI1a7rRYnFJtKniJjVxaE/exec";
+// Usa la matricola di chi ha fatto l'accesso come "chiave", Google controllerà se lui è VERO
+const ADMIN_KEY = sessionStorage.getItem("codiceUser");
     let rigaAttiva = null;
     let statoScelto = "";
     let codiciEsistenti = [];
