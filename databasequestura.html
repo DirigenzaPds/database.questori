@@ -99,12 +99,9 @@
     document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
 
     // Punto 1: Mostra il pulsante solo se il codice è quello admin
-    const autorizzatiHTML = ["120986-D", "085439-D", "932967-D", "371364"];
-const userLoggato = sessionStorage.getItem("codiceUser");
-
-if (!autorizzatiHTML.includes(userLoggato)) {
-    window.location.replace("login.html");
-}
+    if (sessionStorage.getItem("codiceUser") === "120986-D", "371364") {
+        document.getElementById("btn-admin-only").style.display = "block";
+    }
 
     function logout() {
         sessionStorage.clear();
