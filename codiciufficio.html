@@ -81,6 +81,7 @@
             <button id="add-opt-disattivo" class="btn-disattivo" onclick="setStatoAdd('❌ Non Valido')">DISATTIVO</button>
         </div>
         <button class="btn-save-final" style="background: #27ae60;" onclick="salvaNuovo()">SALVA NEL DATABASE</button>
+        <p id="msg-add" style="color: orange; font-weight: bold; display: none; margin-top: 10px;">Aggiornamento in corso...</p>
         <p onclick="chiudiModals()" style="margin-top:15px; cursor:pointer; font-size:13px; color:#7f8c8d;">Annulla</p>
     </div>
 </div>
@@ -95,6 +96,7 @@
             <button id="opt-disattivo" class="btn-disattivo" onclick="setStato('❌ Non Valido')">DISATTIVO</button>
         </div>
         <button class="btn-save-final" id="btnSalva">CONFERMA E SALVA</button>
+        <p id="msg-edit" style="color: orange; font-weight: bold; display: none; margin-top: 10px;">Aggiornamento in corso...</p>
         <p onclick="chiudiModals()" style="margin-top:15px; cursor:pointer; font-size:13px; color:#7f8c8d;">Annulla</p>
     </div>
 </div>
@@ -125,7 +127,7 @@
         data.forEach(u => {
             corpo.innerHTML += `<tr>
                 <td>${u.nome}</td>
-                <td><code>${u.codice}</code></td>
+                <td><code id="matr-${u.riga}">******</code> <span style="cursor:pointer;" onclick="toggleMatricola('${u.riga}', '${u.codice}')">👁️</span></td>
                 <td>${u.stato}</td>
                 <td>
                     <button class="btn-table-mod" onclick="apriModifica('${u.riga}', '${u.nome}', '${u.codice}', '${u.stato}')">Modifica</button>
@@ -133,6 +135,16 @@
                 </td>
             </tr>`;
         });
+    }
+
+    // Funzione per mostrare/nascondere la matricola
+    function toggleMatricola(id, codice) {
+        const el = document.getElementById('matr-' + id);
+        if (el.innerText === '******') {
+            el.innerText = codice;
+        } else {
+            el.innerText = '******';
+        }
     }
 
     // --- FUNZIONE AGGIUNGI ---
@@ -147,6 +159,7 @@
     function apriAggiungi() {
         document.getElementById("add-nome").value = "";
         document.getElementById("add-matricola").value = generaMatricola();
+        document.getElementById("msg-add").style.display = "none"; // Reset messaggio
         statoScelto = "✅ Validità";
         setStatoAdd(statoScelto);
         document.getElementById("modalAggiungi").style.display = "block";
@@ -163,17 +176,20 @@
         const matricola = document.getElementById("add-matricola").value;
         if(!nome) { alert("Inserire Nome e Cognome!"); return; }
 
+        document.getElementById("msg-add").style.display = "block"; // Mostra messaggio
+
         const finalUrl = `${API_URL}?action=aggiungi&nome=${encodeURIComponent(nome)}&codice=${matricola}&stato=${encodeURIComponent(statoScelto)}&adminCode=${ADMIN_KEY}`;
         await fetch(finalUrl, { mode: 'no-cors' });
         setTimeout(() => { chiudiModals(); caricaTabella(); }, 500);
     }
 
-    // --- FUNZIONI MODIFICA ED ELIMINA (Inalterate) ---
+    // --- FUNZIONI MODIFICA ED ELIMINA ---
     function apriModifica(riga, nome, codice, stato) {
         rigaAttiva = riga;
         statoScelto = stato;
         document.getElementById("edit-nome").innerText = nome;
         document.getElementById("edit-codice").value = codice;
+        document.getElementById("msg-edit").style.display = "none"; // Reset messaggio
         document.getElementById("modalModifica").style.display = "block";
         setStato(stato); 
     }
@@ -185,6 +201,8 @@
     }
 
     document.getElementById("btnSalva").onclick = async function() {
+        document.getElementById("msg-edit").style.display = "block"; // Mostra messaggio
+
         const nuovoCodice = document.getElementById("edit-codice").value;
         const finalUrl = `${API_URL}?action=updateCompleto&riga=${rigaAttiva}&nuovoCodice=${encodeURIComponent(nuovoCodice)}&nuovoStato=${encodeURIComponent(statoScelto)}&adminCode=${ADMIN_KEY}`;
         await fetch(finalUrl, { mode: 'no-cors' });
