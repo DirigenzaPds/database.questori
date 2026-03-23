@@ -196,8 +196,13 @@
 
         window.onload = () => {
             // Setup operatore
-            const nomeUtente = sessionStorage.getItem("nomeUtente") || "OPERATORE_NON_IDENTIFICATO";
-            document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
+            let nomeUtente = sessionStorage.getItem("nomeUtente");
+
+if (!nomeUtente) {
+    nomeUtente = "OPERATORE TEST";
+}
+
+document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
             
             // Setup data odierna
             document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
@@ -281,7 +286,7 @@
 
         function syncText(id) {
     const el = document.getElementById(`area-${id}`);
-    storageTesti[id] = el.innerHTML;
+storageTesti[id] = el.innerHTML;
     updatePreview();
 }
 
@@ -323,7 +328,7 @@
             document.querySelectorAll(".form-section[id^='sec-input-']").forEach(sec => {
                 const id = sec.id.replace('sec-input-', '');
                 const tipo = sec.querySelector(".sel-tipo").value;
-                const contenuto = storageTesti[id] || sec.querySelector(".txt-content").value;
+                const contenuto = storageTesti[id] || sec.querySelector(".txt-content").innerHTML;
 
                 if(tipo) {
                     const tHeader = document.createElement("div");
