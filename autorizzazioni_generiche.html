@@ -130,13 +130,13 @@
             </div>
             <div class="form-group">
                 <label>AUTORITÀ DISPONENTE</label>
-                <select id="in-questore" class="required" onchange="updatePreview()">
-                    <option value="Dirigente Generale di P.S.">DIRIGENTE GENERALE DI P.S.</option>
-                    <option value="Dirigente Superiore">DIRIGENTE SUPERIORE</option>
-                    <option value="Primo Dirigente">PRIMO DIRIGENTE</option>
-                    <option value="Questore" selected>QUESTORE</option>
-                    <option value="Questore Vicario">QUESTORE VICARIO</option>
-                </select>
+                    <select id="in-questore" onchange="updatePreview()">
+                        <option value="Dirigente Generale di P.S.">Dirigente Generale di P.S.</option>
+                        <option value="Dirigente Superiore">Dirigente Superiore</option>
+                        <option value="Primo Dirigente">Primo Dirigente</option>
+                        <option value="Questore">Questore</option>
+                        <option value="Questore Vicario">Questore Vicario</option>
+                    </select>
             </div>
         </div>
 
@@ -290,11 +290,11 @@
             
             const questore = document.getElementById("in-questore").value;
             const firme = { 
-                "Dirigente Generale di P.S.": "Dott. Marco Ferri", 
-                "Dirigente Superiore": "Dott. Jolen Iuliano", 
-                "Primo Dirigente": "Dott. Matteo Rossi", 
-                "Questore": "Dott. Marco Ferri", 
-                "Questore Vicario": "Dott. Gabriel Martinelli" 
+                "DIRIGENTE GENERALE DI P.S.": "Dott. Marco Ferri", 
+                "DIRIGENTE SUPERIORE": "Dott. Jolen Iuliano", 
+                "PRIMO DIRIGENTE": "Dott. Matteo Rossi", 
+                "QUESTORE": "Dott. Marco Ferri", 
+                "QUESTORE VICARIO": "Dott. Gabriel Martinelli" 
             };
             document.getElementById("v-titolo-questore").innerText = questore;
             document.getElementById("v-nome-questore").innerText = firme[questore];
