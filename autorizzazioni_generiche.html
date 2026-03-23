@@ -81,7 +81,7 @@
         .doc-subject { border: 1.5px solid black; padding: 12px; text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
         
         .doc-section-title { text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin: 25px 0 10px 0; text-transform: uppercase; }
-        .doc-section-content { font-family: "Times New Roman", serif; font-size: 12.5pt; text-align: justify; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; }
+        .doc-section-content { font-family: "Calibri", sans-serif; font-size: 12.5pt; text-align: justify; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; }
 
         .doc-signature-area { float: right; width: 280px; text-align: center; margin-top: 30px;  margin-left: auto;}
         .signature-box {
@@ -240,30 +240,11 @@
                 </div>
                 <div class="form-group">
                     <label>CONTENUTO (CTRL+B=Gras., CTRL+U=Sott.)</label>
-                    <div class="editor-box">
-    <div class="toolbar">
-        <button type="button" onclick="formatText(${id}, 'bold')"><b>B</b></button>
-        <button type="button" onclick="formatText(${id}, 'underline')"><u>U</u></button>
-    </div>
-    <div class="txt-content required editor" 
-         id="area-${id}" 
-         contenteditable="true"
-         oninput="syncText(${id})">
-    </div>
-</div>
+                    <textarea class="txt-content required" id="area-${id}" oninput="syncText(${id})" onkeydown="applyFormat(event, ${id})"></textarea>
                 </div>
             `;
             container.appendChild(div);
             storageTesti[id] = ""; 
-        }
-
-            function formatText(id, command) {
-    const editor = document.getElementById(`area-${id}`);
-    editor.focus();
-    document.execCommand(command, false, null);
-    syncText(id);
-}
-            
         }
 
         function getOptions() {
@@ -281,10 +262,10 @@
         }
 
         function syncText(id) {
-    const el = document.getElementById(`area-${id}`);
-    storageTesti[id] = el.innerHTML;
-    updatePreview();
-}
+            const el = document.getElementById(`area-${id}`);
+            storageTesti[id] = el.value;
+            updatePreview();
+        }
 
         function applyFormat(e, id) {
             if (e.ctrlKey && (e.key === 'b' || e.key === 'u')) {
