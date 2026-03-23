@@ -6,32 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Questura - Gestione Documentale</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    .editor-box {
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    background: #fff;
-}
-
-.toolbar {
-    background: #f1f1f1;
-    padding: 5px;
-    border-bottom: 1px solid #ccc;
-}
-
-.toolbar button {
-    border: none;
-    background: white;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-right: 5px;
-    font-weight: bold;
-}
-
-.editor {
-    min-height: 100px;
-    padding: 10px;
-    font-family: "Times New Roman", serif;
-}
     <style>
         :root { 
             --ps-dark: #1a252f; 
@@ -277,7 +251,6 @@
          oninput="syncText(${id})">
     </div>
 </div>
-                </div>
             `;
             container.appendChild(div);
             storageTesti[id] = ""; 
