@@ -17,6 +17,28 @@
             flex-direction: column;
             padding: 30px;
             border-right: 8px solid #34495e;
+            position: relative; /* Necessario per il posizionamento dello stemma */
+            overflow: hidden;
+        }
+
+        /* 1) SFONDO STEMMA NELLA SIDEBAR */
+        .sidebar::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('stemma.png');
+            background-repeat: no-repeat;
+            background-position: center 20%; /* Posizionato in alto dietro il nome */
+            background-size: 200px;
+            opacity: 0.15; /* Trasparenza dello stemma */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Assicuriamo che il contenuto sia sopra lo sfondo */
+        .user-card, .logout {
+            position: relative;
+            z-index: 1;
         }
 
         .user-card {
@@ -24,24 +46,34 @@
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #3498db;
+            backdrop-filter: blur(2px); /* Effetto moderno per leggere meglio il testo */
         }
 
         .user-card h4 { font-size: 12px; text-transform: uppercase; color: #bdc3c7; margin-bottom: 5px; }
         .user-card p { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
         .user-card .date { font-size: 13px; font-weight: normal; color: #95a5a6; }
 
-        /* Contenuto Destra */
-        .main-content { flex-grow: 1; padding: 60px; }
-        h1 { color: #2c3e50; margin-bottom: 30px; font-size: 28px; }
+        /* 2) SFONDO IPRPP NELLA PARTE CENTRALE */
+        .main-content { 
+            flex-grow: 1; 
+            padding: 60px; 
+            background-image: linear-gradient(rgba(236, 240, 241, 0.85), rgba(236, 240, 241, 0.85)), url('iprpp.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 40%; /* Regola la grandezza del logo centrale */
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 30px; font-size: 28px; position: relative; }
 
         .nav-button {
-            background: white;
+            background: rgba(255, 255, 255, 0.9); /* Leggermente trasparente per vedere lo sfondo sotto */
             border: 2px solid #2c3e50;
             padding: 25px 40px;
             cursor: pointer;
             transition: 0.3s;
             border-radius: 5px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .nav-button:hover {
@@ -59,7 +91,6 @@
 <body>
 
     <script>
-        // BLOCCO DI SICUREZZA IMMEDIATO
         if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
             window.location.replace("index.html");
         }
@@ -79,31 +110,30 @@
     </aside>
 
     <main class="main-content">
-    <h1>HOME</h1>
-    
-    <div class="button-area" style="display: flex; gap: 20px;">
-        <button class="nav-button" onclick="window.location.href='autorizzazioni_eventi.html'">
-            <span class="btn-text">AUTORIZZAZIONI EVENTI</span>
-            <span class="btn-sub">Modulo per compilare le autorizzazione per gli eventi</span>
-        </button>
+        <h1>HOME</h1>
+        
+        <div class="button-area" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <button class="nav-button" onclick="window.location.href='autorizzazioni_eventi.html'">
+                <span class="btn-text">AUTORIZZAZIONI EVENTI</span>
+                <span class="btn-sub">Modulo per compilare le autorizzazione per gli eventi</span>
+            </button>
 
-        <button class="nav-button" onclick="window.location.href='autorizzazioni_generiche.html'">
-            <span class="btn-text">AUTORIZZAZIONI DIRIGENZA</span>
-            <span class="btn-sub">Autorizzazioni specifiche emanate dalla dirigenza</span>
-        </button>
+            <button class="nav-button" onclick="window.location.href='autorizzazioni_generiche.html'">
+                <span class="btn-text">AUTORIZZAZIONI DIRIGENZA</span>
+                <span class="btn-sub">Autorizzazioni specifiche emanate dalla dirigenza</span>
+            </button>
 
-        <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
-            <span class="btn-text" style="color: #e67e22;">REGISTRO CODICI</span>
-            <span class="btn-sub">[Amministrazione]</span>
-        </button>
-    </div>
-</main>
+            <button id="btn-admin-only" class="nav-button" style="display: none; border-color: #e67e22;" onclick="window.location.href='codiciufficio.html'">
+                <span class="btn-text" style="color: #e67e22;">REGISTRO CODICI</span>
+                <span class="btn-sub">Gestione dei codici e del personale</span>
+            </button>
+        </div>
+    </main>
 
 <script>
-    document.getElementById("nome-utente").textContent = sessionStorage.getItem("nomeUtente");
-    document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso");
+    document.getElementById("nome-utente").textContent = sessionStorage.getItem("nomeUtente") || "Utente";
+    document.getElementById("data-accesso").textContent = sessionStorage.getItem("dataAccesso") || "--/--/----";
 
-    // Punto 1: Mostra il pulsante solo se il codice è quello admin
     if (sessionStorage.getItem("codiceUser") === "129424-D") {
         document.getElementById("btn-admin-only").style.display = "block";
     }
