@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Questura - Gestione Documentale</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { 
+            --ps-dark: #1a252f; 
+            --ps-accent: #3498db; 
+            --bg-ui: #f4f7f9;
+            --text-main: #2c3e50;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; display: flex; height: 100vh; background: var(--bg-ui); overflow: hidden; color: var(--text-main); }
+
+        /* --- PANNELLO INPUT --- */
+        .input-panel { 
+            width: 40%; height: 100%; padding: 30px; overflow-y: auto; 
+            background: white; box-shadow: 5px 0 15px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .header-ui { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 3px solid var(--ps-dark); padding-bottom: 15px; }
+        .header-ui h2 { margin: 0; color: var(--ps-dark); font-size: 18px; letter-spacing: 1px; }
+        
+        .form-section { position: relative; background: #ffffff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e1e8ed; border-left: 5px solid var(--ps-accent); }
+        .form-section h3 { margin: 0 0 15px 0; font-size: 11px; text-transform: uppercase; color: #7f8c8d; }
+
+        .btn-delete { 
+            position: absolute; top: 10px; right: 10px; 
+            background: var(--danger); color: white; border: none; 
+            border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 10px; font-weight: bold; 
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 6px; color: var(--ps-dark); }
+        
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; 
+            font-size: 14px; background: #fcfcfc; transition: all 0.2s ease;
+        }
+        input.error, select.error, textarea.error { border: 2px solid var(--danger) !important; background-color: #fff5f5; }
+        textarea { resize: vertical; min-height: 100px; line-height: 1.4; }
+
+        .btn-add { 
+            background: var(--success); color: white; border: none; padding: 15px; border-radius: 8px; 
+            cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; box-shadow: 0 4px 0 #1e8449; 
+        }
+
+        #error-msg { color: var(--danger); font-size: 13px; font-weight: bold; margin-top: 15px; text-align: center; display: none; padding: 10px; background: #fee; border-radius: 6px; border: 1px solid var(--danger); }
+
+        /* --- PANNELLO ANTEPRIMA --- */
+        .preview-panel { 
+            width: 60%; height: 100%; padding: 20px; overflow-y: auto; 
+            background: #34495e; display: flex; justify-content: center; 
+        }
+        .document-page { 
+            width: 210mm; min-height: 296.5mm; background: white; padding: 20mm; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); color: black; position: relative;
+            display: flex; flex-direction: column; word-wrap: break-word; overflow-wrap: break-word;
+        }
+
+        .doc-header { text-align: center; margin-bottom: 25px; }
+        .logo-box { 
+            background-image: url('https://cdn.discordapp.com/attachments/1461731411537956905/1480670186024472717/Emblem_of_Italy.png?ex=69b12dd1&is=69afdc51&hm=c42dfd5356540b932986f2d664071ac3dc257c459b5e7d7e35a9ec9fdd945b3a&'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; height: 90px; margin-bottom: 10px; 
+        }
+        .doc-header h1 { margin: 0; font-family: "Times New Roman", serif; font-size: 20pt; font-weight: bold; text-transform: uppercase; }
+        .doc-header p { margin: 0; font-family: "Times New Roman", serif; font-size: 12pt; }
+
+        .doc-info { text-align: right; font-family: "Times New Roman", serif; font-size: 11pt; margin: 30px 0; }
+        .doc-subject { border: 1.5px solid black; padding: 12px; text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .doc-section-title { text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin: 25px 0 10px 0; text-transform: uppercase; }
+        .doc-section-content { font-family: "Calibri", sans-serif; font-size: 12.5pt; text-align: justify; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; }
+
+        .doc-signature-area { margin-left: auto; width: 300px; text-align: center; margin-top: 40px; }
+        .signature-box { 
+            background-image: url('https://cdn.discordapp.com/attachments/1461731411537956905/1480672555982524467/image.png?ex=69b08746&is=69af35c6&hm=6118550e4ad5d75342d718816f412d333c5d964cd15a6baa2c8a0f6211285347&'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; min-height: 80px; margin-bottom: 5px; 
+        }
+        .questore-titolo, .questore-nome { font-weight: bold; display: block; font-size: 12pt; }
+
+        /* MODALE STAMPA */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); }
+        .modal-content { background: white; width: 420px; margin: 12% auto; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .progress-box { width: 100%; background: #f0f0f0; height: 14px; border-radius: 10px; margin: 25px 0; overflow: hidden; border: 1px solid #ddd; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 10px; transition: width 3s linear; }
+        .btn-print-final { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; display: none; width: 100%; font-size: 16px; transition: 0.3s; }
+
+        .doc-footer-disclaimer { position: absolute; bottom: 10mm; left: 0; width: 100%; text-align: center; font-size: 8pt; color: #777; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <script>
+        if (sessionStorage.getItem("accessoAutorizzato") !== "true") {
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <div class="input-panel">
+        <div class="header-ui">
+            <h2>GESTIONALE DOCUMENTALE</h2>
+            <button style="background:var(--ps-dark); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="window.location.href='databasequestura.html'">INDIETRO</button>
+        </div>
+
+        <div class="form-section">
+            <h3>Parametri Intestazione</h3>
+            <div class="form-group">
+                <label>OPERATORE ASSEGNATO</label>
+                <input type="text" id="in-operatore" readonly style="background: #e9ecef; color: #495057; font-weight: bold;">
+            </div>
+            <div class="form-group">
+                <label>OGGETTO DEL DOCUMENTO</label>
+                <input type="text" id="in-prot" class="required" placeholder="Es. Ordine Pubblico Stadio Olimpico" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>AUTORITÀ DISPONENTE</label>
+                <select id="in-questore" class="required" onchange="updatePreview()">
+                    <option value="Dirigente Generale di P.S.">Dirigente Generale di P.S.</option>
+                    <option value="Dirigente Superiore">Dirigente Superiore</option>
+                    <option value="Primo Dirigente">Primo Dirigente</option>
+                    <option value="Questore" selected>Questore</option>
+                    <option value="Questore Vicario">Questore Vicario</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="container-sezioni"></div>
+
+        <button class="btn-add" onclick="addNewSection()">+ AGGIUNGI NUOVA SEZIONE</button>
+        
+        <button onclick="startPrintProcess()" style="width:100%; padding:18px; background:var(--ps-dark); color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer; margin-top:20px; font-size:15px;">SALVA E GENERA PDF</button>
+        <div id="error-msg">ATTENZIONE: Compilare tutti i campi evidenziati in rosso.</div>
+    </div>
+
+    <div class="preview-panel">
+        <div class="document-page" id="documento">
+            <div class="doc-header">
+                <div class="logo-box"></div>
+                <h1>QUESTURA DI ROMA</h1>
+                <p>UFFICIO DI PUBBLICA SICUREZZA</p>
+            </div>
+
+            <div class="doc-info">
+                Prot. n: <span id="v-prot-auto" style="font-weight:bold;">Caricamento...</span><br>
+                Data odierna: <span id="v-today">--/--/----</span>
+            </div>
+
+            <div class="doc-subject">OGGETTO: <span id="v-prot" class="filled" style="font-family:'Times New Roman', serif; font-size:14pt; font-weight:bold; text-transform:uppercase;">-------</span></div>
+
+            <div id="preview-content-area"></div>
+
+            <div class="doc-signature-area">
+                <div style="font-size:11pt; margin-bottom:10px; font-family: serif italic;">In Fede,</div>
+                <div class="signature-box">
+                    <span class="questore-titolo" id="v-titolo-questore">QUESTORE</span>
+                <span class="questore-nome" id="v-nome-questore">Dott. Marco Ferri</span>
+                </div>
+
+            <div class="doc-footer-disclaimer">Documento ad uso esclusivamente ludico-interno. Privo di ogni efficacia legale.</div>
+        </div>
+    </div>
+
+    <div id="modalStampa" class="modal">
+        <div class="modal-content">
+            <h2 style="margin:0; color:var(--ps-dark);">REGISTRAZIONE IN CORSO</h2>
+            <p style="color:#666; font-size:14px;">Archiviazione nel registro ufficiale e generazione PDF...</p>
+            <div class="progress-box"><div id="p-bar" class="progress-bar"></div></div>
+            <p id="msg-status" style="font-weight:bold; color:var(--ps-accent);">Sincronizzazione database...</p>
+            <button id="btn-final-print" class="btn-print-final" onclick="generatePDFFile()">SCARICA DOCUMENTO</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvuhKC1AMil1bgxEGisVoatJ7XiIVqF6PciXUV0DrXizYdpfmssyIhAVgLxy23UvU/exec";
+        const opzioniMenu = ["CONSIDERATO CHE", "CONSIDERATO", "VISTO", "VISTA", "VISTO CHE", "DISPONE", "INFORMA", "AVVISA", "SI AUTORIZZA"];
+        let sezioniCount = 0;
+        let storageTesti = {};
+
+        window.onload = () => {
+            // Setup operatore
+            const nomeUtente = sessionStorage.getItem("nomeUtente") || "OPERATORE_NON_IDENTIFICATO";
+            document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
+            
+            // Setup data odierna
+            document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
+            
+            // Fetch automatico del protocollo
+            fetch(GOOGLE_SCRIPT_URL + "?action=getProt")
+                .then(res => res.text())
+                .then(text => {
+                    let parts = text.trim().split('/');
+                    if(parts.length === 2) {
+                        let num = parseInt(parts[0], 10) + 1;
+                        let nextProt = (num < 10 ? "0" + num : num) + "/" + parts[1];
+                        document.getElementById("v-prot-auto").innerText = nextProt;
+                    } else {
+                        document.getElementById("v-prot-auto").innerText = "01/26";
+                    }
+                })
+                .catch(e => {
+                    document.getElementById("v-prot-auto").innerText = "01/26";
+                });
+
+            addNewSection();
+            updatePreview();
+        };
+
+        function addNewSection() {
+            sezioniCount++;
+            const id = sezioniCount;
+            const container = document.getElementById("container-sezioni");
+            const div = document.createElement("div");
+            div.className = "form-section";
+            div.id = `sec-input-${id}`;
+            
+            div.innerHTML = `
+                <button class="btn-delete" onclick="removeSection(${id})">ELIMINA</button>
+                <h3>Sezione Documentale</h3>
+                <div class="form-group">
+                    <label>TIPOLOGIA TESTO</label>
+                    <select class="sel-tipo required" onchange="updatePreview()">${getOptions()}</select>
+                </div>
+                <div class="form-group">
+                    <label>CONTENUTO (CTRL+B=Gras., CTRL+U=Sott.)</label>
+                    <textarea class="txt-content required" id="area-${id}" oninput="syncText(${id})" onkeydown="applyFormat(event, ${id})"></textarea>
+                </div>
+            `;
+            container.appendChild(div);
+            storageTesti[id] = ""; 
+        }
+
+        function getOptions() {
+            let options = `<option value="" disabled selected>Scegli...</option>`;
+            opzioniMenu.forEach(o => options += `<option value="${o}">${o}</option>`);
+            return options;
+        }
+
+        function removeSection(id) {
+            if(confirm("Confermi di voler rimuovere questa sezione?")) {
+                document.getElementById(`sec-input-${id}`).remove();
+                delete storageTesti[id];
+                updatePreview();
+            }
+        }
+
+        function syncText(id) {
+            const el = document.getElementById(`area-${id}`);
+            storageTesti[id] = el.value;
+            updatePreview();
+        }
+
+        function applyFormat(e, id) {
+            if (e.ctrlKey && (e.key === 'b' || e.key === 'u')) {
+                e.preventDefault();
+                const el = e.target;
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const original = el.value;
+                const selected = original.substring(start, end);
+                if(!selected) return;
+                const tag = (e.key === 'b') ? 'b' : 'u';
+                const prima = original.substring(0, start);
+                const dopo = original.substring(end);
+                storageTesti[id] = prima + `<${tag}>` + selected + `</${tag}>` + dopo;
+                el.value = prima + selected + dopo;
+                updatePreview();
+            }
+        }
+
+        function updatePreview() {
+            document.getElementById("v-prot").innerText = document.getElementById("in-prot").value || "-------";
+            
+            const questore = document.getElementById("in-questore").value;
+            const firme = { 
+                "Dirigente Generale di P.S.": "Dott. Marco Ferri", 
+                "Dirigente Superiore": "Dott. Jolen Iuliano", 
+                "Primo Dirigente": "Dott. Matteo Rossi", 
+                "Questore": "Dott. Marco Ferri", 
+                "Questore Vicario": "Dott. Alessandro B." 
+            };
+            document.getElementById("v-titolo-questore").innerText = questore;
+            document.getElementById("v-nome-questore").innerText = firme[questore];
+
+            const area = document.getElementById("preview-content-area");
+            area.innerHTML = "";
+
+            document.querySelectorAll(".form-section[id^='sec-input-']").forEach(sec => {
+                const id = sec.id.replace('sec-input-', '');
+                const tipo = sec.querySelector(".sel-tipo").value;
+                const contenuto = storageTesti[id] || sec.querySelector(".txt-content").value;
+
+                if(tipo) {
+                    const tHeader = document.createElement("div");
+                    tHeader.className = "doc-section-title";
+                    tHeader.innerText = tipo;
+                    area.appendChild(tHeader);
+
+                    const tBody = document.createElement("div");
+                    tBody.className = "doc-section-content";
+                    tBody.innerHTML = contenuto;
+                    area.appendChild(tBody);
+                }
+            });
+        }
+
+        function startPrintProcess() {
+            // Controlla validazione su tutti i campi .required (compresi menu a tendina e textareas generati dinamicamente)
+            const req = document.querySelectorAll(".required");
+            let err = 0;
+            req.forEach(f => {
+                if(!f.value || !f.value.trim()){ f.classList.add("error"); err++; }
+                else { f.classList.remove("error"); }
+            });
+
+            if(err > 0) {
+                document.getElementById("error-msg").style.display = "block";
+                return;
+            }
+
+            document.getElementById("error-msg").style.display = "none";
+            document.getElementById("modalStampa").style.display = "block";
+            
+            const bar = document.getElementById("p-bar");
+            bar.style.width = "0%";
+            setTimeout(() => { bar.style.width = "100%"; }, 100);
+
+            // Logica di invio Database Google Script
+            const payload = {
+                protocollo: document.getElementById("v-prot-auto").innerText,
+                operatore: document.getElementById("in-operatore").value,
+                titolo: document.getElementById("in-prot").value,
+                data: document.getElementById("v-today").innerText
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+            .catch(e => console.log("Errore invio registro"));
+
+            setTimeout(() => {
+                document.getElementById("msg-status").innerText = "Pratica Registrata con Successo!";
+                document.getElementById("btn-final-print").style.display = "block";
+            }, 3050);
+        }
+
+        function generatePDFFile() {
+            const element = document.getElementById('documento');
+            const titoloEvento = document.getElementById("in-prot").value || "EVENTO";
+            const dataEvento = document.getElementById("v-today").innerText.replace(/\//g, '-');
+            
+            const nomeFilePDF = `AUTORIZZAZIONE ${titoloEvento} | ${dataEvento}.pdf`;
+
+            const opt = {
+                margin: 0,
+                filename: nomeFilePDF,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.getElementById("modalStampa").style.display = "none";
+                document.getElementById("p-bar").style.width = "0%";
+                document.getElementById("btn-final-print").style.display = "none";
+                document.getElementById("msg-status").innerText = "Sincronizzazione database...";
+            });
+        }
+    </script>
+</body>
+</html>
