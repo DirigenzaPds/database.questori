@@ -196,13 +196,8 @@
 
         window.onload = () => {
             // Setup operatore
-            let nomeUtente = sessionStorage.getItem("nomeUtente");
-
-if (!nomeUtente) {
-    nomeUtente = "OPERATORE TEST";
-}
-
-document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
+            const nomeUtente = sessionStorage.getItem("nomeUtente") || "OPERATORE_NON_IDENTIFICATO";
+            document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
             
             // Setup data odierna
             document.getElementById("v-today").innerText = new Date().toLocaleDateString('it-IT');
@@ -256,6 +251,7 @@ document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
          oninput="syncText(${id})">
     </div>
 </div>
+                </div>
             `;
             container.appendChild(div);
             storageTesti[id] = ""; 
@@ -286,7 +282,7 @@ document.getElementById("in-operatore").value = nomeUtente.toUpperCase();
 
         function syncText(id) {
     const el = document.getElementById(`area-${id}`);
-storageTesti[id] = el.innerHTML;
+    storageTesti[id] = el.innerHTML;
     updatePreview();
 }
 
@@ -328,7 +324,7 @@ storageTesti[id] = el.innerHTML;
             document.querySelectorAll(".form-section[id^='sec-input-']").forEach(sec => {
                 const id = sec.id.replace('sec-input-', '');
                 const tipo = sec.querySelector(".sel-tipo").value;
-                const contenuto = storageTesti[id] || sec.querySelector(".txt-content").innerHTML;
+                const contenuto = storageTesti[id] || sec.querySelector(".txt-content").value;
 
                 if(tipo) {
                     const tHeader = document.createElement("div");
