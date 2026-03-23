@@ -18,9 +18,9 @@
 <body>
 
 <div class="box">
-    ### 🔒 ACCESSO SISTEMA QUESTURA
-    <form id="login-form">
-        <input type="password" id="codice" name="password" placeholder="INSERISCI CODICE" autocomplete="current-password">
+    <h3>🔒 ACCESSO SISTEMA QUESTURA</h3>
+    <form onsubmit="event.preventDefault(); verificaCodice();">
+        <input type="text" id="codice" name="password" placeholder="INSERISCI CODICE" autocomplete="on">
         <button type="submit" id="btn-login">ACCEDI</button>
     </form>
     <div id="status-msg" style="margin-top: 15px; font-size: 14px; font-weight: bold; min-height: 20px; color: #666;"></div>
@@ -29,11 +29,6 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxm93Nh_VeraHzgtQ9KCBOjPQV4ZlAHvYvg4rNb5D0eCdW6T7gkadlvKhKYflNPa74/exec";
 
-    document.getElementById("login-form").addEventListener("submit", function(e) {
-    e.preventDefault(); // Impedisce il ricaricamento della pagina
-    verificaCodice();
-});
-    
 async function verificaCodice() {
     const codice = document.getElementById("codice").value.trim();
     const statusMsg = document.getElementById("status-msg");
@@ -59,7 +54,7 @@ async function verificaCodice() {
             sessionStorage.setItem("codiceUser", codice);
             sessionStorage.setItem("dataAccesso", new Date().toLocaleString('it-IT'));
             
-            // Il redirect deve avvenire DOPO che il browser ha processato il submit
+            // Il browser salva la password quando la pagina cambia dopo un invio form
             window.location.replace("databasequestura.html");
         } else {
             statusMsg.style.color = "#e74c3c";
@@ -70,8 +65,6 @@ async function verificaCodice() {
         statusMsg.style.color = "#e74c3c";
         statusMsg.textContent = "❌ Errore di connessione";
         btn.disabled = false;
-    }
-}
     }
 }
 </script>
