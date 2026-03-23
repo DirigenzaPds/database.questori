@@ -82,7 +82,12 @@
         .doc-section-title { text-align: center; font-family: "Times New Roman", serif; font-size: 14pt; font-weight: bold; margin: 25px 0 10px 0; text-transform: uppercase; }
         .doc-section-content { font-family: "Calibri", sans-serif; font-size: 12.5pt; text-align: justify; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; }
 
-        .doc-signature-area { float: right; width: 280px; text-align: center; margin-top: 30px; }
+        .doc-signature-area {
+    width: 280px;
+    text-align: center;
+    margin-top: 30px;
+    align-self: flex-end; /* 👈 questo la spinge a destra */
+} float: right; width: 280px; text-align: center; margin-top: 30px; }
         .signature-box {
             background-image: url('firma.png'); 
             background-size: contain; 
@@ -157,7 +162,7 @@
 
             <div class="doc-info">
                 Prot. n: <span id="v-prot-auto" style="font-weight:bold;">Caricamento...</span><br>
-                Data: <span id="v-today">--/--/----</span><br>
+                Data: <span id="v-today" style="font-weight:bold;>--/--/----</span><br>
             </div>
 
             <div class="doc-subject">OGGETTO: <span id="v-prot" class="filled" style="font-family:'Times New Roman', serif; font-size:14pt; font-weight:bold; text-transform:uppercase;">-------</span></div>
