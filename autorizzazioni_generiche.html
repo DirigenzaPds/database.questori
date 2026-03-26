@@ -239,8 +239,8 @@
                     <select class="sel-tipo required" onchange="updatePreview()">${getOptions()}</select>
                 </div>
                 <div class="form-group">
-                    <label>CONTENUTO (CTRL+B=Gras., CTRL+U=Sott.)</label>
-                    <textarea class="txt-content required" id="area-${id}" oninput="syncText(${id})" onkeydown="applyFormat(event, ${id})"></textarea>
+                    <label>CONTENUTO (*grassetto*, _sottolineato_, *_entrambi_*)</label>
+                    <textarea class="txt-content required" id="area-${id}" oninput="syncText(${id})"></textarea>
                 </div>
             `;
             container.appendChild(div);
@@ -284,7 +284,23 @@
                 updatePreview();
             }
         }
-
+function parseMarkdown(text) {
+    if (!text) return "";
+    let parsed = text;
+    
+    // 1. Grassetto + Sottolineato: *_testo_* oppure _*testo*_
+    parsed = parsed.replace(/\*_(.*?)_\*/g, "<b><u>$1</u></b>");
+    parsed = parsed.replace(/_\*(.*?)\*_/g, "<b><u>$1</u></b>");
+    
+    // 2. Grassetto: *testo*
+    parsed = parsed.replace(/\*(.*?)\*/g, "<b>$1</b>");
+    
+    // 3. Sottolineato: _testo_
+    parsed = parsed.replace(/_(.*?)_/g, "<u>$1</u>");
+    
+    return parsed;
+}
+        
         function updatePreview() {
             document.getElementById("v-prot").innerText = document.getElementById("in-prot").value || "-------";
             
@@ -315,7 +331,8 @@
 
                     const tBody = document.createElement("div");
                     tBody.className = "doc-section-content";
-                    tBody.innerHTML = contenuto;
+                    // Passiamo il contenuto nella nostra funzione parseMarkdown
+                    tBody.innerHTML = parseMarkdown(contenuto); 
                     area.appendChild(tBody);
                 }
             });
