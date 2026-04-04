@@ -416,11 +416,19 @@ Si invita il richiedente a prendere contatti con il competente Ufficio di Polizi
 
             // ECCO IL PAYLOAD SISTEMATO
             const payload = {
-                protocollo: document.getElementById("v-prot-auto").innerText,
-                operatore: document.getElementById("in-operatore").value,
-                titolo: document.getElementById("in-prot").value, // Questo andrà nella Colonna C
-                data: document.getElementById("in-dataev").value
-            };
+    // --- DATI GIÀ ESISTENTI (NON TOCCARE LOGICA) ---
+    operatore: document.getElementById("in-operatore").value,
+    titolo: document.getElementById("in-prot").value,
+    data: document.getElementById("in-dataev").value,
+
+    // --- NUOVI DATI PER EVENTIL ---
+    nome: document.getElementById("in-nome").value,
+    datanas: document.getElementById("in-datanas").value,
+    dataev: document.getElementById("in-dataev").value,
+    oraI: document.getElementById("in-oraI").value,
+    oraF: document.getElementById("in-oraF").value,
+    luogo: document.getElementById("in-luogo").value
+};
 
             fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
             .catch(e => console.log("Errore invio registro"));
